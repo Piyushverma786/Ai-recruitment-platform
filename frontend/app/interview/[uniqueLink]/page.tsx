@@ -232,7 +232,10 @@ export default function VoiceInterviewPage() {
                 // Add more event listeners for debugging
                 audioRef.current.onloadstart = () => console.log('Audio loading started');
                 audioRef.current.oncanplay = () => console.log('Audio can play');
-                audioRef.current.onplay = () => console.log('Audio started playing');
+                audioRef.current.onplay = () => {
+                  console.log('Audio started playing');
+                  try { if (typeof window !== 'undefined' && 'speechSynthesis' in window) window.speechSynthesis.cancel(); } catch {}
+                };
                 audioRef.current.onpause = () => console.log('Audio paused');
                 audioRef.current.onerror = (e) => console.error('Audio error:', e);
                 
@@ -260,6 +263,17 @@ export default function VoiceInterviewPage() {
 
           case 'transcript-update':
             setTranscript(prev => [...prev, message.message]);
+            try {
+              if (typeof window !== 'undefined' && 'speechSynthesis' in window && message?.message?.role === 'assistant' && typeof message?.message?.content === 'string') {
+                // Provide client-side TTS fallback when server audio is unavailable
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(message.message.content);
+                utterance.rate = 0.95;
+                utterance.pitch = 1.0;
+                utterance.lang = 'en-US';
+                window.speechSynthesis.speak(utterance);
+              }
+            } catch {}
             break;
 
           case 'transcription-status':
@@ -417,14 +431,14 @@ export default function VoiceInterviewPage() {
         }
         
         if (selectedFormat) {
-          // Lower bitrate and slice for lower latency
+          // Slightly higher bitrate for clearer speech while remaining small
           mediaRecorder = new MediaRecorder(audioOnlyStream, { 
             mimeType: selectedFormat,
-            audioBitsPerSecond: 96000
+            audioBitsPerSecond: 128000
           });
         } else {
           mediaRecorder = new MediaRecorder(audioOnlyStream, {
-            audioBitsPerSecond: 96000
+            audioBitsPerSecond: 128000
           });
         }
         

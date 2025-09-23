@@ -55,16 +55,17 @@ export default function CandidateDashboardPage() {
       setError(null);
       try {
         const token = await getToken();
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
         const [appsRes, jobsRes, interviewsRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/applications`, {
+          fetch(`${backendUrl}/api/users/applications`, {
             headers: { Authorization: `Bearer ${token}` },
             credentials: "include",
           }),
-          fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/jobs`, {
+          fetch(`${backendUrl}/api/users/jobs`, {
             headers: { Authorization: `Bearer ${token}` },
             credentials: "include",
           }),
-          fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/my-interviews`, {
+          fetch(`${backendUrl}/api/users/my-interviews`, {
             headers: { Authorization: `Bearer ${token}` },
             credentials: "include",
           }),

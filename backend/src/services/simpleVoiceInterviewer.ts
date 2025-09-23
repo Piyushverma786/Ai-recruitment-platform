@@ -17,19 +17,21 @@ export class SimpleVoiceInterviewer extends EventEmitter {
   private conversationContext: string = '';
   private currentQuestionIndex = 0;
   private questions: string[] = [];
+  private hasOpenAI: boolean = true;
 
   constructor(config: VoiceInterviewConfig) {
     super();
     
-    // Validate OpenAI API key
+    // Validate OpenAI API key (degrade gracefully if missing)
     if (!process.env.OPENAI_API_KEY) {
-      console.error('OPENAI_API_KEY is not set in environment variables');
-      throw new Error('OpenAI API key is required for voice interviewer');
+      console.warn('OPENAI_API_KEY is not set. Running interview in fallback (text + silent audio) mode.');
+      this.hasOpenAI = false;
+      // Create a dummy OpenAI to satisfy types when not used
+      this.openai = new OpenAI({ apiKey: 'sk-missing' });
+    } else {
+      this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      this.hasOpenAI = true;
     }
-    
-    this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY
-    });
     this.config = config;
     this.setupConversationContext();
     this.setupQuestions();
@@ -243,11 +245,28 @@ If this seems like a natural place to wrap up the interview (after covering majo
 
 Keep your response conversational and under 50 words.`;
 
+    if (!this.hasOpenAI) {
+      // Simple heuristic fallback without OpenAI
+      const trimmed = userText.trim();
+      if (!trimmed || trimmed.length < 5) {
+        return 'I did not catch that clearly. Could you please repeat and add more details?';
+      }
+      if (/team|collaborat|people|stakeholder/i.test(trimmed)) {
+        return 'Thanks. Can you share a specific example of teamwork and your role in it?';
+      }
+      if (/project|built|develop|implement/i.test(trimmed)) {
+        return 'Interesting. What was the most challenging part of that project and how did you handle it?';
+      }
+      if (typeof timeLeft === 'number' && timeLeft <= 90) {
+        return 'We are short on time. What accomplishment are you most proud of for this role?';
+      }
+      return 'That sounds good. Could you elaborate with an example and your impact?';
+    }
     try {
       const response = await this.openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
         messages: [{ role: 'user', content: prompt }],
-        temperature: 0.8, // Higher temperature for more natural responses
+        temperature: 0.8,
         max_tokens: 100
       });
 
@@ -261,23 +280,48 @@ Keep your response conversational and under 50 words.`;
   private async generateSpeech(text: string): Promise<Buffer> {
     try {
       console.log('Generating speech for text:', text.substring(0, 50) + '...');
-      
-      const response = await this.openai.audio.speech.create({
-        model: 'tts-1-hd', // Use high-definition model for better quality
-        voice: 'nova', // Professional female voice, good for interviews
-        input: text,
-        speed: 0.9, // Slightly slower for better comprehension
-        response_format: 'mp3' // MP3 for better compatibility
-      });
 
-      const buffer = Buffer.from(await response.arrayBuffer());
-      console.log('Speech generated successfully, size:', buffer.length, 'bytes');
-      return buffer;
+      // Primary: tts-1 (more widely available/stable)
+      try {
+        const response = await this.openai.audio.speech.create({
+          model: 'tts-1',
+          voice: 'alloy',
+          input: text,
+          speed: 0.95,
+          response_format: 'mp3'
+        });
+        const buffer = Buffer.from(await response.arrayBuffer());
+        console.log('Speech generated successfully (tts-1), size:', buffer.length, 'bytes');
+        return buffer;
+      } catch (primaryError) {
+        console.warn('tts-1 failed, trying tts-1-hd:', primaryError);
+        // Fallback: tts-1-hd
+        try {
+          const response = await this.openai.audio.speech.create({
+            model: 'tts-1-hd',
+            voice: 'nova',
+            input: text,
+            speed: 0.9,
+            response_format: 'mp3'
+          });
+          const buffer = Buffer.from(await response.arrayBuffer());
+          console.log('Speech generated successfully (tts-1-hd), size:', buffer.length, 'bytes');
+          return buffer;
+        } catch (fallbackError) {
+          console.error('Both TTS models failed:', fallbackError);
+          // Last resort: return a tiny silent MP3 buffer to avoid breaking client playback
+          const silentMp3Base64 =
+            'SUQzAwAAAAAAFlRFTkMAAAABAAAAGG1wMzJMYXZmNTkuMzIuMTAw';
+          return Buffer.from(silentMp3Base64, 'base64');
+        }
+      }
     } catch (error) {
-      console.error('Error generating speech:', error);
+      console.error('Error generating speech (outer):', error);
       console.error('OpenAI API key present:', !!process.env.OPENAI_API_KEY);
       console.error('Text length:', text.length);
-      throw error;
+      // Return silent audio to keep flow even if TTS fails
+      const silentMp3Base64 = 'SUQzAwAAAAAAFlRFTkMAAAABAAAAGG1wMzJMYXZmNTkuMzIuMTAw';
+      return Buffer.from(silentMp3Base64, 'base64');
     }
   }
 
@@ -306,10 +350,10 @@ Keep your response conversational and under 50 words.`;
       console.log(`Temp file path: ${tempFilePath}`);
       console.log(`Temp directory: ${tempDir}`);
       
-      // Validate minimum audio size - increased threshold for longer recordings
-      if (audioBuffer.length < 8000) {
+      // Validate minimum audio size (allow shorter utterances)
+      if (audioBuffer.length < 3000) {
         console.warn(`Audio buffer too small: ${audioBuffer.length} bytes - likely too short for transcription`);
-        throw new Error('Audio too short for transcription - please speak for at least 3-4 seconds');
+        throw new Error('Audio too short for transcription - please speak for at least 2 seconds');
       }
       
       // Write buffer to temporary file with error handling
@@ -330,9 +374,9 @@ Keep your response conversational and under 50 words.`;
         throw new Error('Empty audio file generated');
       }
       
-      if (fileStats.size < 8000) {
+      if (fileStats.size < 3000) {
         fs.unlinkSync(tempFilePath);
-        throw new Error('Audio file too small - please speak for at least 3-4 seconds');
+        throw new Error('Audio file too small - please speak for at least 2 seconds');
       }
       
       // Create a readable stream for OpenAI
