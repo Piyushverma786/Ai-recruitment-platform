@@ -17,7 +17,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: {
-    default: "Aptiview - AI-Powered Hiring Platform",
+    default: "RecruitBit - AI-Powered Hiring Platform",
     template: "%s | Aptiview",
   },
   description:
