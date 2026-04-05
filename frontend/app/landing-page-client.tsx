@@ -35,7 +35,7 @@ import { Separator } from "@/components/ui/separator"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { AnimatedBeam } from "@/components/magicui/animated-beam"
 import { cn } from "@/lib/utils"
-import { SignInButton, SignedIn, SignedOut, useUser, useAuth } from "@clerk/nextjs"
+import { SignInButton, Show, useUser, useAuth } from "@clerk/nextjs"
 
 const companies = [
   "Google",
@@ -400,17 +400,17 @@ export default function LandingPageClient() {
               </motion.p>
 
               <motion.div className="flex flex-col sm:flex-row gap-4 mb-12" initial={{ opacity: 0, y: 20 }} animate={isHeroInView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.5, duration: 0.6 }}>
-                <SignedOut>
+                <Show when="signed-out">
                   <SignInButton mode="modal">
                     <Button size="lg" className="bg-black hover:bg-gray-800 font-semibold text-lg px-8 py-6 shadow-lg dark:bg-gray-100 dark:text-black dark:hover:bg-gray-200">
                       Start Free Trial
                       <ArrowRight className="ml-2 w-5 h-5" />
                     </Button>
                   </SignInButton>
-                </SignedOut>
-                <SignedIn>
+                </Show>
+                <Show when="signed-in">
                   <Button onClick={handleDashboardRedirect}>Go to Dashboard</Button>
-                </SignedIn>
+                </Show>
                 <Link href="https://youtu.be/ee0YQgg7FKo" aria-label="Watch product demo">
                   <Button size="lg" variant="outline" className="font-semibold text-lg px-8 py-6 border-2 hover:bg-gray-50 bg-transparent dark:border-gray-700 dark:hover:bg-gray-800 dark:text-gray-100">
                     <Play className="mr-2 w-5 h-5" />
@@ -714,17 +714,17 @@ export default function LandingPageClient() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12">
-              <SignedIn>
+              <Show when="signed-in">
                 <Button onClick={handleDashboardRedirect}>Go to Dashboard</Button>
-              </SignedIn>
-              <SignedOut>
+              </Show>
+              <Show when="signed-out">
                 <SignInButton mode="modal">
                   <Button size="lg" className="bg-white text-black hover:bg-gray-100 font-semibold text-lg px-10 py-6 shadow-xl dark:bg-gray-100 dark:text-black dark:hover:bg-gray-200">
                     Start Free Trial
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </SignInButton>
-              </SignedOut>
+              </Show>
               <Link href="#demo" aria-label="Schedule a live demo">
                 <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-black font-semibold text-lg px-10 py-6 bg-transparent">
                   <Play className="mr-2 w-5 h-5" />

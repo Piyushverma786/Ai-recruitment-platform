@@ -1,9 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
-import {
-  ClerkProvider,
-  SignedIn,
-} from "@clerk/nextjs";
+import { ClerkProvider, Show } from "@clerk/nextjs";
 import "./globals.css"
 import "lenis/dist/lenis.css"
 import { Inter } from "next/font/google"
@@ -66,12 +63,39 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const clerkPk = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.trim()
+
+  if (!clerkPk) {
+    return (
+      <html lang="en">
+        <body className={inter.className}>
+          <div className="mx-auto max-w-lg px-6 py-16 text-center text-gray-800">
+            <h1 className="text-xl font-semibold tracking-tight">Aptiview — configuration needed</h1>
+            <p className="mt-3 text-sm text-gray-600 leading-relaxed">
+              This Vercel project is missing{" "}
+              <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY</code>{" "}
+              (and usually{" "}
+              <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">CLERK_SECRET_KEY</code>
+              ). Open{" "}
+              <strong>Vercel → this project → Settings → Environment Variables</strong>, add them for{" "}
+              <strong>Production</strong>, then redeploy. Copy values from your{" "}
+              <a className="text-blue-600 underline" href="https://dashboard.clerk.com">
+                Clerk dashboard
+              </a>
+              .
+            </p>
+          </div>
+        </body>
+      </html>
+    )
+  }
+
   return (
     <ClerkProvider>
-      <SignedIn>
+      <Show when="signed-in">
         <GlobalUserProvisioner />
         <RoleRedirector />
-      </SignedIn>
+      </Show>
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <LenisRoot>

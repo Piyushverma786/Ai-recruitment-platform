@@ -6,7 +6,7 @@ import { Separator } from "@/components/ui/separator"
 import { useState } from "react"
 import Link from "next/link"
 import { ThemeToggle } from "./theme-toggle" // Import the ThemeToggle component
-import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, useUser, useAuth } from "@clerk/nextjs";
+import { SignInButton, SignUpButton, Show, UserButton, useUser, useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 
 export function MainNavigation() {
@@ -79,7 +79,7 @@ export function MainNavigation() {
                 {item.name}
               </motion.a>
             ))}
-            <SignedIn>
+            <Show when="signed-in">
               <motion.a
                 href="#"
                 onClick={handleDashboardRedirect}
@@ -91,8 +91,8 @@ export function MainNavigation() {
               >
                 Dashboard
               </motion.a>
-            </SignedIn>
-            <SignedOut>
+            </Show>
+            <Show when="signed-out">
               <SignInButton mode="modal">
                 <Button
                   variant="outline"
@@ -110,10 +110,10 @@ export function MainNavigation() {
                   Get Started
                 </Button>
               </SignUpButton>
-            </SignedOut>
-            <SignedIn>
+            </Show>
+            <Show when="signed-in">
               <UserButton afterSignOutUrl="/" />
-            </SignedIn>
+            </Show>
             <ThemeToggle />
           </div>
 
@@ -152,7 +152,7 @@ export function MainNavigation() {
                 {item.name}
               </Link>
             ))}
-            <SignedIn>
+            <Show when="signed-in">
               <Link
                 href="#"
                 onClick={(e) => { handleDashboardRedirect(e); setMobileMenuOpen(false); }}
@@ -160,10 +160,10 @@ export function MainNavigation() {
               >
                 Dashboard
               </Link>
-            </SignedIn>
+            </Show>
             <Separator className="my-3 bg-gray-200 dark:bg-gray-700" />
             <div className="flex flex-col space-y-2">
-              <SignedOut>
+              <Show when="signed-out">
                 <SignInButton mode="modal">
                   <Button
                     variant="outline"
@@ -181,10 +181,10 @@ export function MainNavigation() {
                     Get Started
                   </Button>
                 </SignUpButton>
-              </SignedOut>
-              <SignedIn>
+              </Show>
+              <Show when="signed-in">
                 <UserButton afterSignOutUrl="/" />
-              </SignedIn>
+              </Show>
             </div>
           </div>
         </motion.div>
