@@ -1,13 +1,12 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { ClerkProvider, Show } from "@clerk/nextjs";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css"
 import "lenis/dist/lenis.css"
 import { Inter } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
 import { MainNavigation } from "@/components/main-nav"
-import { GlobalUserProvisioner } from "@/components/GlobalUserProvisioner";
-import { RoleRedirector } from "@/components/RoleRedirector";
+import { ClerkSignedInShell } from "@/components/ClerkSignedInShell";
 import LenisRoot from "@/components/LenisRoot";
 
 const inter = Inter({ subsets: ["latin"] })
@@ -92,10 +91,7 @@ export default function RootLayout({
 
   return (
     <ClerkProvider>
-      <Show when="signed-in">
-        <GlobalUserProvisioner />
-        <RoleRedirector />
-      </Show>
+      <ClerkSignedInShell />
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <LenisRoot>
