@@ -1,6 +1,8 @@
 # Render Blueprint: https://render.com/docs/blueprint-spec
-# After push: Render Dashboard → New → Blueprint → select this repo.
-# Set all sync:false env vars when prompted (or in the service → Environment).
+# Dashboard → New → Blueprint → connect https://github.com/Piyushverma786/Ai-recruitment-platform
+# When prompted, paste secrets for sync:false keys (from backend/.env).
+# After first deploy, set BACKEND_URL to your Render service URL (e.g. https://aptiview-backend.onrender.com).
+# Optional: node scripts/sync-render-env.mjs (needs RENDER_API_KEY + RENDER_SERVICE_ID).
 
 services:
   - type: web
@@ -16,9 +18,9 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: DATABASE_URL
-        sync: false
       - key: FRONTEND_URL
+        value: https://aptiview.vercel.app
+      - key: DATABASE_URL
         sync: false
       - key: BACKEND_URL
         sync: false
