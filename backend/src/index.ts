@@ -14,7 +14,8 @@ app.use(cors({
   origin: [
     "http://localhost:3000", 
     "https://apti-view.vercel.app",
-    "https://apti-view-seven.vercel.app", // Your actual Vercel URL
+    "https://apti-view-seven.vercel.app",
+    "https://aptiview.vercel.app",
     "https://aptiview.onrender.com", // Your backend URL (for health checks)
     process.env.FRONTEND_URL || "http://localhost:3000"
   ],

@@ -17,7 +17,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: {
-    default: "RecruitBit - AI-Powered Hiring Platform",
+    default: "Aptiview - AI-Powered Hiring Platform",
     template: "%s | Aptiview",
   },
   description:
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     title: "Aptiview - AI-Powered Hiring Platform",
     description:
       "Revolutionize your hiring process with Aptiview's intelligent platform. Leverage AI-powered interviews, real-time analytics, and bias-free candidate evaluation to find top talent faster.",
-    url: "https://www.talentai.com",
+    url: "https://aptiview.com",
     siteName: "Aptiview",
     images: [
       {
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     title: "Aptiview - AI-Powered Hiring Platform",
     description:
       "Revolutionize your hiring process with Aptiview's intelligent platform. Leverage AI-powered interviews, real-time analytics, and bias-free candidate evaluation to find top talent faster.",
-    creator: "@TalentAI",
+    creator: "@aptiview",
     images: ["/placeholder.svg?height=675&width=1200"],
   },
   authors: [{ name: "Aptiview Team" }],
