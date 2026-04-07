@@ -8,6 +8,7 @@ Aptiview is a comprehensive interview platform that leverages AI to conduct voic
 - **Real-time Transcription**: Automatic speech-to-text conversion with intelligent processing
 - **Smart Analytics**: Detailed interview scoring and candidate assessment
 - **Recruiter Dashboard**: Comprehensive job management and candidate tracking
+- **Seamless Deployment**: Fully deployed on Vercel and Render for production use
 - **Custom AI Templates**: Pre-built interview contexts for different roles and industries
 - **Screen Recording**: Automatic screenshot capture during interviews
 - **Audio Recording**: Complete interview audio recording for review
