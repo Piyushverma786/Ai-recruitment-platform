@@ -411,12 +411,14 @@ export default function LandingPageClient() {
                 <Show when="signed-in">
                   <Button onClick={handleDashboardRedirect}>Go to Dashboard</Button>
                 </Show>
-                <Link href="https://youtu.be/ee0YQgg7FKo" aria-label="Watch product demo">
+
+                {/* <Link href="https://youtu.be/ee0YQgg7FKo" aria-label="Watch product demo">
                   <Button size="lg" variant="outline" className="font-semibold text-lg px-8 py-6 border-2 hover:bg-gray-50 bg-transparent dark:border-gray-700 dark:hover:bg-gray-800 dark:text-gray-100">
                     <Play className="mr-2 w-5 h-5" />
                     Watch Demo
                   </Button>
-                </Link>
+                </Link> */}
+                
               </motion.div>
 
               <motion.div className="grid grid-cols-1 sm:grid-cols-3 gap-6" initial={{ opacity: 0 }} animate={isHeroInView ? { opacity: 1 } : {}} transition={{ delay: 0.6, duration: 0.6 }}>
