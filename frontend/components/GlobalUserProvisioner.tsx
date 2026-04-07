@@ -3,6 +3,17 @@
 import { useEffect } from "react";
 import { useAuth, useUser } from "@clerk/nextjs";
 
+function resolveBackendUrl() {
+  const configured = (process.env.NEXT_PUBLIC_BACKEND_URL || "").trim();
+  const fallback =
+    process.env.NODE_ENV === "production"
+      ? "https://aptiview-backend.onrender.com"
+      : "http://localhost:4000";
+  const base = configured || fallback;
+  const normalized = /^https?:\/\//i.test(base) ? base : `https://${base}`;
+  return normalized.replace(/\/+$/, "");
+}
+
 export function GlobalUserProvisioner() {
   const { isSignedIn, getToken } = useAuth();
   const { user } = useUser();
@@ -18,7 +29,7 @@ export function GlobalUserProvisioner() {
           return;
         }
         const email = user?.primaryEmailAddress?.emailAddress || user?.emailAddresses[0]?.emailAddress;
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000";
+        const backendUrl = resolveBackendUrl();
         const body = { email };
         const res = await fetch(`${backendUrl}/api/users/provision`, {
           method: "POST",
@@ -35,9 +46,9 @@ export function GlobalUserProvisioner() {
       } catch (err) {
         if (!cancelled) console.error("Provisioning error:", err);
       }
-      return () => { cancelled = true; };
     }
     provision();
+    return () => { cancelled = true; };
   }, [isSignedIn, user, getToken]);
   return null;
 } 
