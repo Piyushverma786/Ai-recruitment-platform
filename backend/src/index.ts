@@ -13,10 +13,14 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:3000", 
+    "http://localhost:3001", // Additional dev port
+    "http://localhost:5173", // Vite dev port (if used)
     "https://apti-view.vercel.app",
     "https://apti-view-seven.vercel.app",
     "https://aptiview.vercel.app",
-    "https://aptiview.onrender.com", // Your backend URL (for health checks)
+    "https://recrubit.vercel.app",
+    // "https://aptiview.onrender.com", // Your backend URL (for health checks)
+    "https://aptiview-backend.onrender.com", // Correct backend URL
     process.env.FRONTEND_URL || "http://localhost:3000"
   ],
   credentials: true,
